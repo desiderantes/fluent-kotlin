@@ -16,18 +16,10 @@ internal class ProcessorTest {
     fun toProcessedPattern() {
         val processor = Processor()
 
-        val pattern = Pattern()
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
-                TextElement("Hi")
-            )
-        )
+        var pattern = Pattern(listOf(TextElement("Hi")))
         assertEquals(pattern, processor.unescapeLiteralsToText(pattern))
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 Placeable(expression = StringLiteral("\\\\")),
                 TextElement(" "),
                 Placeable(expression = StringLiteral("""\""""))
@@ -38,9 +30,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Foo "),
                 Placeable(expression = StringLiteral("Bar"))
             )
@@ -58,9 +48,7 @@ internal class ProcessorTest {
             pattern
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Hi,"),
                 Placeable(expression = StringLiteral("""\u0020""")),
                 TextElement("there")
@@ -71,9 +59,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Emoji: "),
                 Placeable(expression = StringLiteral("""\U01f602"""))
             )
@@ -87,9 +73,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Illegal escape sequence: "),
                 Placeable(expression = StringLiteral("""\ud800"""))
             )
@@ -99,9 +83,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Illegal escape sequence: "),
                 Placeable(expression = StringLiteral("""\U00d800"""))
             )
@@ -111,9 +93,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Hi, "),
                 Placeable(expression = StringLiteral("""{""")),
                 TextElement(" there")
@@ -124,9 +104,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Foo\n"),
                 Placeable(expression = StringLiteral(""".""")),
                 TextElement("bar")
@@ -137,9 +115,7 @@ internal class ProcessorTest {
             processor.unescapeLiteralsToText(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Foo "),
                 Placeable(
                     expression = SelectExpression(
@@ -187,26 +163,19 @@ internal class ProcessorTest {
     fun toRawPattern() {
         val processor = Processor()
 
-        val pattern = Pattern()
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        var pattern = Pattern(listOf(
                 TextElement("Hi")
             )
         )
         assertEquals(pattern, processor.escapeTextToLiterals(pattern))
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("""\ """")
             )
         )
         assertEquals(pattern, processor.escapeTextToLiterals(pattern))
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Hi, {-_-}")
             )
         )
@@ -220,17 +189,13 @@ internal class ProcessorTest {
             processor.escapeTextToLiterals(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Foo\nbar")
             )
         )
         assertEquals(pattern, processor.escapeTextToLiterals(pattern))
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("Foo\n*bar")
             )
         )
@@ -243,9 +208,7 @@ internal class ProcessorTest {
             processor.escapeTextToLiterals(pattern)
         )
 
-        pattern.elements.clear()
-        pattern.elements.addAll(
-            arrayOf(
+        pattern = Pattern(listOf(
                 TextElement("\nFoo\nbar    ")
             )
         )

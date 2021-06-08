@@ -1,8 +1,12 @@
 package org.projectfluent.syntax.ast
 
-import kotlin.reflect.KClass
-import kotlin.reflect.KVisibility
-import kotlin.reflect.full.memberProperties
+interface HasSpan {
+    var span: BaseNode.Span?
+}
+
+fun HasSpan.addSpan(start: Int, end: Int) {
+    this.span = BaseNode.Span(start, end)
+}
 
 /**
  * Base class for all Fluent AST nodes.
@@ -11,6 +15,13 @@ import kotlin.reflect.full.memberProperties
  * Annotation.
  *
  */
+
+private fun List<Any>.deepEquals(other: List<Any>): Boolean {
+    return if (this.size == other.size) {
+        this.zip(other).all { (l, r) -> l == r }
+    } else false
+}
+
 sealed class BaseNode {
 
 //    override fun equals(other: Any?) =
@@ -59,47 +70,87 @@ sealed class BaseNode {
      * Base class for AST nodes which can have Spans.
      */
     sealed class SyntaxNode : BaseNode() {
-        var span: Span? = null
-        fun addSpan(start: Int, end: Int) {
-            this.span = Span(start, end)
-        }
+//        var span: Span? = null
+//
+//        fun addSpan(start: Int, end: Int) {
+//            this.span = Span(start, end)
+//        }
 
         /**
          * A Fluent file representation
          */
-        data class Resource(val children: List<TopLevel>) : SyntaxNode() {
-            val body: MutableList<TopLevel> = mutableListOf()
+        data class Resource(val body: List<TopLevel>) : SyntaxNode() {
+            override fun equals(other: Any?): Boolean {
+                return if (other != null && other is Resource) this.body.deepEquals(other.body)
+                else false
+            }
 
-            init {
-                this.body += children
+            override fun hashCode(): Int {
+                return body.hashCode()
             }
         }
 
-        data class Attribute(var id: Identifier, var value: TopLevel.Pattern) : SyntaxNode()
+        data class Attribute(val id: Identifier, val value: TopLevel.Pattern) : SyntaxNode()
 
-        data class Variant(var key: TopLevel.VariantKey, var value: TopLevel.Pattern, var default: Boolean) : SyntaxNode()
+        data class Variant(val key: TopLevel.VariantKey, val value: TopLevel.Pattern, val default: Boolean) :
+            SyntaxNode()
 
-        data class NamedArgument(var name: Identifier, var value: TopLevel.Expression.Literal) : TopLevel.CallArgument, SyntaxNode()
+        data class NamedArgument(val name: Identifier, val value: TopLevel.Expression.Literal) : TopLevel.CallArgument,
+            SyntaxNode()
 
-        data class Identifier(var name: String) : TopLevel.VariantKey, SyntaxNode()
+        data class Identifier(val name: String) : TopLevel.VariantKey, SyntaxNode()
 
         sealed class PatternElement : SyntaxNode() {
-            data class TextElement(var value: String) : PatternElement()
+            data class TextElement(var value: String) : PatternElement(), HasSpan {
+                override var span: Span? = null
+                override fun equals(other: Any?): Boolean {
+                    return other != null && other is TextElement && this.value == other.value
+                }
+
+                override fun hashCode() = value.hashCode()
+            }
+
             data class Placeable(var expression: TopLevel.InsidePlaceable) : TopLevel.InsidePlaceable, PatternElement()
-            data class Indent(var value: String) : PatternElement() {
+            data class Indent(var value: String) : PatternElement(), HasSpan {
+                override var span: Span? = null
+
                 constructor(value: String, start: Int, end: Int) : this(value) {
                     this.addSpan(start, end)
                 }
+
+                override fun equals(other: Any?): Boolean {
+                    return other != null && other is Indent && this.value == other.value
+                }
+                override fun hashCode() = value.hashCode()
             }
         }
 
         data class CallArguments(
             val positional: MutableList<TopLevel.Expression> = mutableListOf(),
             val named: MutableList<NamedArgument> = mutableListOf()
-        ) : SyntaxNode()
+        ) : SyntaxNode() {
+            override fun equals(other: Any?): Boolean {
+                return if (other != null && other is CallArguments) {
+                    positional.deepEquals(other.positional) && named.deepEquals(other.named)
+                } else false
+            }
+            override fun hashCode() = 0
+        }
 
-        data class Annotation(var code: String, var message: String) : SyntaxNode() {
+        data class Annotation(
+            var code: String,
+            var message: String,
             val arguments: MutableList<Any> = mutableListOf()
+        ) : SyntaxNode(), HasSpan {
+            override var span: Span? = null
+
+            override fun equals(other: Any?): Boolean {
+                return if (other != null && other is Annotation) {
+                    return this.code == other.code && this.message == other.message && arguments.deepEquals(other.arguments)
+                }
+                else false
+            }
+            override fun hashCode() = 0
         }
 
         sealed class TopLevel : SyntaxNode() {
@@ -109,34 +160,50 @@ sealed class BaseNode {
              */
             sealed class Entry : TopLevel() {
 
-                data class Message(var id: Identifier, var value: Pattern?) : Entry() {
-                    var attributes: MutableList<Attribute> = mutableListOf()
+                data class Message(
+                    var id: Identifier,
+                    var value: Pattern?,
+                    var attributes: MutableList<Attribute> = mutableListOf(),
                     var comment: BaseComment.Comment? = null
+                ) : Entry() {
+                    override fun equals(other: Any?): Boolean {
+                        return if (other != null && other is Message)
+                            id == other.id && value == other.value && attributes.deepEquals(other.attributes) && comment == other.comment
+                        else false
+                    }
+                    override fun hashCode() = 0
                 }
 
-                data class Term(var id: Identifier, var value: Pattern) : Entry() {
-                    var attributes: MutableList<Attribute> = mutableListOf()
+                data class Term(
+                    var id: Identifier,
+                    var value: Pattern,
+                    var attributes: MutableList<Attribute> = mutableListOf(),
                     var comment: BaseComment.Comment? = null
+                ) : Entry() {
+                    override fun equals(other: Any?): Boolean {
+                        return if (other != null && other is Term)
+                            id == other.id && value == other.value && attributes.deepEquals(other.attributes) && comment == other.comment
+                        else false
+                    }
+                    override fun hashCode() = 0
                 }
 
-                sealed class BaseComment(var content: String) : Entry() {
-                    data class Comment(private val myContent: String) : BaseComment(myContent)
-
-                    data class GroupComment(private val myContent: String) : BaseComment(myContent)
-
-                    data class ResourceComment(private val myContent: String) : BaseComment(myContent)
+                sealed class BaseComment(open val content: String) : Entry() {
+                    data class Comment(override val content: String) : BaseComment(content)
+                    data class GroupComment(override val content: String) : BaseComment(content)
+                    data class ResourceComment(override val content: String) : BaseComment(content)
                 }
             }
 
-            data class Pattern(private val es: List<PatternElement>) : SyntaxNode() {
-                val elements: MutableList<PatternElement> = mutableListOf()
-
-                init {
-                    this.elements += es
+            data class Pattern(val elements: List<PatternElement> = listOf()) : SyntaxNode() {
+                override fun equals(other: Any?): Boolean {
+                    return if (other != null && other is Pattern) elements.deepEquals(other.elements) else false
                 }
+                override fun hashCode() = 0
 
                 companion object {
-                    operator fun invoke(vararg es: PatternElement) = Pattern(es.toList()) // this can be invoked as MyClass()
+                    operator fun invoke(vararg es: PatternElement) =
+                        Pattern(es.toList()) // this can be invoked as MyClass()
                 }
             }
 
@@ -144,33 +211,49 @@ sealed class BaseNode {
 
             sealed class Expression : CallArgument, InsidePlaceable, SyntaxNode() {
 
-                sealed class Literal(val value: String) : Expression() {
-                    data class StringLiteral(private val v: String) : Literal(v)
-                    data class NumberLiteral(private val v: String) : VariantKey, Literal(v)
+                sealed class Literal(open val value: String) : Expression() {
+                    data class StringLiteral(override val value: String) : Literal(value)
+                    data class NumberLiteral(override val value: String) : VariantKey, Literal(value)
                 }
+
                 data class MessageReference(var id: Identifier, var attribute: Identifier? = null) : Expression()
                 data class TermReference(
                     var id: Identifier,
                     var attribute: Identifier? = null,
                     var arguments: CallArguments? = null
-                ) :
-                    Expression()
+                ) : Expression()
+
                 data class VariableReference(var id: Identifier) : Expression()
 
                 data class FunctionReference(var id: Identifier, var arguments: CallArguments) : Expression()
 
-                data class SelectExpression(var selector: Expression, var variants: MutableList<Variant>) : Expression()
+                data class SelectExpression(var selector: Expression, var variants: MutableList<Variant>) :
+                    Expression() {
+                    override fun equals(other: Any?): Boolean {
+                        return if (other != null && other is SelectExpression) selector == other.selector && variants.deepEquals(
+                            other.variants
+                        ) else false
+                    }
+                    override fun hashCode() = 0
+                }
             }
 
             interface CallArgument
 
             interface VariantKey
 
-            data class Junk(val content: String) : TopLevel() {
+            data class Junk(
+                val content: String,
                 val annotations: MutableList<Annotation> = mutableListOf()
+            ) : TopLevel() {
                 fun addAnnotation(annotation: Annotation) {
                     this.annotations.add(annotation)
                 }
+
+                override fun equals(other: Any?): Boolean {
+                    return if (other != null && other is Junk) content == other.content && annotations.deepEquals(other.annotations) else false
+                }
+                override fun hashCode() = 0
             }
 
             /**
@@ -179,8 +262,8 @@ sealed class BaseNode {
              * Extension of the data model in other implementations.
              */
             data class Whitespace(val content: String) : TopLevel()
-
         }
     }
+
     data class Span(var start: Int, var end: Int) : BaseNode()
 }

@@ -16,11 +16,7 @@ class Processor {
      * transformation for literals which are not special in Fluent syntax.
      */
     fun unescapeLiteralsToText(pattern: Pattern): Pattern {
-        val result = Pattern(listOf())
-        for (elem in textFromLiterals(pattern)) {
-            result.elements.add(elem)
-        }
-        return result
+        return Pattern(textFromLiterals(pattern).toList())
     }
 
     /**
@@ -28,11 +24,7 @@ class Processor {
      * cause syntax errors with Fluent parsers.
      */
     fun escapeTextToLiterals(pattern: Pattern): Pattern {
-        val result = Pattern(listOf())
-        for (elem in literalsFromText(pattern)) {
-            result.elements.add(elem)
-        }
-        return result
+        return Pattern(literalsFromText(pattern).toList())
     }
 
     private fun textFromLiterals(pattern: Pattern) = sequence {

@@ -1,10 +1,13 @@
 package org.projectfluent.syntax.parser
 
+import org.projectfluent.syntax.ast.BaseNode
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.*
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.*
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.*
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.*
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.StringLiteral
+import org.projectfluent.syntax.ast.HasSpan
+import org.projectfluent.syntax.ast.addSpan
 
 private val trailingWSRe = Regex("[ \t\n\r]+\$")
 private val VALID_FUNCTION_NAME = Regex("^[A-Z][A-Z0-9_-]*\$")
@@ -428,8 +431,11 @@ class FluentParser(var withSpans: Boolean = false) {
                     )
                     if (this.withSpans) {
                         val start = prev.span?.start
-                        val end = element.span?.end
-                        if (start != null && end != null) sum.addSpan(start, end)
+                        if(element is HasSpan) {
+                            val end = element.span?.end
+                            if (start != null && end != null) sum.addSpan(start, end)
+
+                        }
                     }
                     trimmed[trimmed.size - 1] = sum
                     continue
