@@ -84,8 +84,7 @@ class FluentParser(var withSpans: Boolean = false) {
             // Create a Junk instance
             val slice = ps.string.substring(entryStartPos, nextEntryStart)
             val junk = Junk(slice)
-            val annot = Annotation(err.code, err.message ?: "")
-            annot.arguments.addAll(err.args)
+            val annot = Annotation(err.code, err.message ?: "",err.args)
             annot.addSpan(errorIndex, errorIndex)
             junk.addAnnotation(annot)
             return junk

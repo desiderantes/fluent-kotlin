@@ -63,7 +63,7 @@ sealed class BaseNode {
                 override fun hashCode() = value.hashCode()
             }
 
-            data class Placeable(var expression: TopLevel.InsidePlaceable) : TopLevel.InsidePlaceable, PatternElement()
+            data class Placeable(val expression: TopLevel.InsidePlaceable) : TopLevel.InsidePlaceable, PatternElement()
             data class Indent(var value: String) : PatternElement(), HasSpan {
                 override var span: Span? = null
 
@@ -91,9 +91,9 @@ sealed class BaseNode {
         }
 
         data class Annotation(
-            var code: String,
-            var message: String,
-            val arguments: MutableList<Any> = mutableListOf()
+            val code: String,
+            val message: String,
+            val arguments: List<Any> = mutableListOf()
         ) : SyntaxNode(), HasSpan {
             override var span: Span? = null
 
@@ -114,9 +114,9 @@ sealed class BaseNode {
             sealed class Entry : TopLevel() {
 
                 data class Message(
-                    var id: Identifier,
-                    var value: Pattern?,
-                    var attributes: MutableList<Attribute> = mutableListOf(),
+                    val id: Identifier,
+                    val value: Pattern?,
+                    val attributes: MutableList<Attribute> = mutableListOf(),
                     var comment: BaseComment.Comment? = null
                 ) : Entry() {
                     override fun equals(other: Any?): Boolean {
@@ -128,9 +128,9 @@ sealed class BaseNode {
                 }
 
                 data class Term(
-                    var id: Identifier,
-                    var value: Pattern,
-                    var attributes: MutableList<Attribute> = mutableListOf(),
+                    val id: Identifier,
+                    val value: Pattern,
+                    val attributes: MutableList<Attribute> = mutableListOf(),
                     var comment: BaseComment.Comment? = null
                 ) : Entry() {
                     override fun equals(other: Any?): Boolean {
@@ -169,18 +169,18 @@ sealed class BaseNode {
                     data class NumberLiteral(override val value: String) : VariantKey, Literal(value)
                 }
 
-                data class MessageReference(var id: Identifier, var attribute: Identifier? = null) : Expression()
+                data class MessageReference(val id: Identifier, val attribute: Identifier? = null) : Expression()
                 data class TermReference(
                     var id: Identifier,
                     var attribute: Identifier? = null,
                     var arguments: CallArguments? = null
                 ) : Expression()
 
-                data class VariableReference(var id: Identifier) : Expression()
+                data class VariableReference(val id: Identifier) : Expression()
 
-                data class FunctionReference(var id: Identifier, var arguments: CallArguments) : Expression()
+                data class FunctionReference(val id: Identifier, val arguments: CallArguments) : Expression()
 
-                data class SelectExpression(var selector: Expression, var variants: MutableList<Variant>) :
+                data class SelectExpression(val selector: Expression, val variants: MutableList<Variant>) :
                     Expression() {
                     override fun equals(other: Any?): Boolean {
                         return if (other != null && other is SelectExpression) selector == other.selector && variants.deepEquals(
@@ -218,5 +218,5 @@ sealed class BaseNode {
         }
     }
 
-    data class Span(var start: Int, var end: Int) : BaseNode()
+    data class Span(val start: Int, val end: Int) : BaseNode()
 }
