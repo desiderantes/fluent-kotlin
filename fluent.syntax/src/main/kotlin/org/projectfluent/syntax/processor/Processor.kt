@@ -1,7 +1,11 @@
 package org.projectfluent.syntax.processor
 
-import org.projectfluent.syntax.ast.* // ktlint-disable no-wildcard-imports
-import java.lang.StringBuilder
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.Placeable
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.TextElement
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.StringLiteral
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.SelectExpression
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Pattern
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.Variant
 
 /**
  * Process patterns by returning new patterns with elements transformed.
@@ -12,7 +16,7 @@ class Processor {
      * transformation for literals which are not special in Fluent syntax.
      */
     fun unescapeLiteralsToText(pattern: Pattern): Pattern {
-        val result = Pattern()
+        val result = Pattern(listOf())
         for (elem in textFromLiterals(pattern)) {
             result.elements.add(elem)
         }
@@ -24,7 +28,7 @@ class Processor {
      * cause syntax errors with Fluent parsers.
      */
     fun escapeTextToLiterals(pattern: Pattern): Pattern {
-        val result = Pattern()
+        val result = Pattern(listOf())
         for (elem in literalsFromText(pattern)) {
             result.elements.add(elem)
         }

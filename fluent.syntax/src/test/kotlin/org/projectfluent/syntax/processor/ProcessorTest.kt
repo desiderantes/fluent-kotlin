@@ -2,7 +2,13 @@ package org.projectfluent.syntax.processor
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.projectfluent.syntax.ast.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Entry.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Entry.BaseComment.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.*
 
 internal class ProcessorTest {
 

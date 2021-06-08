@@ -1,6 +1,10 @@
 package org.projectfluent.syntax.parser
 
-import org.projectfluent.syntax.ast.* // ktlint-disable no-wildcard-imports
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.StringLiteral
 
 private val trailingWSRe = Regex("[ \t\n\r]+\$")
 private val VALID_FUNCTION_NAME = Regex("^[A-Z][A-Z0-9_-]*\$")
@@ -15,7 +19,7 @@ class FluentParser(var withSpans: Boolean = false) {
     fun parse(source: String): Resource {
         val ps = FluentStream(source)
         val entries: MutableList<TopLevel> = mutableListOf()
-        var lastComment: Comment? = null
+        var lastComment: Entry.BaseComment.Comment? = null
         var blankLines = ps.skipBlankBlock()
         if (blankLines.isNotEmpty()) {
             entries.add(Whitespace(blankLines))
@@ -29,7 +33,7 @@ class FluentParser(var withSpans: Boolean = false) {
             // they should parse as standalone when they're followed by Junk.
             // Consequently, we only attach Comments once we know that the Message
             // or the Term parsed successfully.
-            if (entry is Comment &&
+            if (entry is Entry.BaseComment.Comment &&
                 blankLines.isEmpty() &&
                 ps.currentChar() != EOF
             ) {
@@ -40,8 +44,8 @@ class FluentParser(var withSpans: Boolean = false) {
 
             lastComment?.let {
                 when (entry) {
-                    is Message -> entry.comment = it
-                    is Term -> entry.comment = it
+                    is Entry.Message -> entry.comment = it
+                    is Entry.Term -> entry.comment = it
                     else -> entries.add(it)
                 }
                 // In either case, the stashed comment has been dealt with; clear it.
@@ -54,7 +58,7 @@ class FluentParser(var withSpans: Boolean = false) {
                 entries.add(Whitespace(blankLines))
             }
         }
-        return Resource(*entries.toTypedArray())
+        return Resource(entries)
     }
 
     private fun getEntryOrJunk(ps: FluentStream): TopLevel {
@@ -101,7 +105,7 @@ class FluentParser(var withSpans: Boolean = false) {
         throw ParseError("E0002")
     }
 
-    private fun getComment(ps: FluentStream): BaseComment {
+    private fun getComment(ps: FluentStream): Entry.BaseComment {
         // 0 - comment
         // 1 - group comment
         // 2 - resource comment
@@ -138,13 +142,13 @@ class FluentParser(var withSpans: Boolean = false) {
         }
 
         return when (level) {
-            0 -> Comment(content)
-            1 -> GroupComment(content)
-            else -> ResourceComment(content)
+            0 -> Entry.BaseComment.Comment(content)
+            1 -> Entry.BaseComment.GroupComment(content)
+            else -> Entry.BaseComment.ResourceComment(content)
         }
     }
 
-    private fun getMessage(ps: FluentStream): Message {
+    private fun getMessage(ps: FluentStream): Entry.Message {
         val id = this.getIdentifier(ps)
 
         ps.skipBlankInline()
@@ -157,12 +161,12 @@ class FluentParser(var withSpans: Boolean = false) {
             throw ParseError("E0005", id.name)
         }
 
-        val msg = Message(id, value)
+        val msg = Entry.Message(id, value)
         msg.attributes.addAll(attrs)
         return msg
     }
 
-    private fun getTerm(ps: FluentStream): Term {
+    private fun getTerm(ps: FluentStream): Entry.Term {
         ps.expectChar('-')
         val id = this.getIdentifier(ps)
 
@@ -175,7 +179,7 @@ class FluentParser(var withSpans: Boolean = false) {
         }
 
         val attrs = this.getAttributes(ps)
-        val term = Term(id, value)
+        val term = Entry.Term(id, value)
         term.attributes.addAll(attrs)
         return term
     }
@@ -218,7 +222,7 @@ class FluentParser(var withSpans: Boolean = false) {
     private fun getVariantKey(ps: FluentStream): VariantKey {
         val ch = ps.currentChar() ?: throw ParseError("E0013")
 
-        val cc = ch.toInt()
+        val cc = ch.code
 
         if ((cc in 48..57) || cc == 45) { // 0-9, -
             return this.getNumber(ps)
@@ -296,7 +300,7 @@ class FluentParser(var withSpans: Boolean = false) {
         return num
     }
 
-    private fun getNumber(ps: FluentStream): NumberLiteral {
+    private fun getNumber(ps: FluentStream): Literal.NumberLiteral {
         var value = ""
 
         value += if (ps.currentChar() == '-') {
@@ -311,7 +315,7 @@ class FluentParser(var withSpans: Boolean = false) {
             value += ".${this.getDigits(ps)}"
         }
 
-        return NumberLiteral(value)
+        return Literal.NumberLiteral(value)
     }
 
     // maybeGetPattern distinguishes between patterns which start on the same line
@@ -380,7 +384,7 @@ class FluentParser(var withSpans: Boolean = false) {
         }
 
         val dedented = this.dedent(elements, commonIndentLength)
-        return Pattern(*dedented.toTypedArray())
+        return Pattern(dedented)
     }
 
     // Create a token representing an indent. It's not part of the AST and it will
@@ -732,8 +736,4 @@ class FluentParser(var withSpans: Boolean = false) {
     }
 }
 
-private data class Indent(var value: String) : PatternElement() {
-    constructor(value: String, start: Int, end: Int) : this(value) {
-        this.addSpan(start, end)
-    }
-}
+

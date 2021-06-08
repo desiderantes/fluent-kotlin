@@ -3,6 +3,10 @@ package org.projectfluent.syntax.serializer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.projectfluent.syntax.ast.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.Placeable
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Entry.Message
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.NumberLiteral
 import org.projectfluent.syntax.parser.FluentParser
 
 class SerializeExpressionTest {

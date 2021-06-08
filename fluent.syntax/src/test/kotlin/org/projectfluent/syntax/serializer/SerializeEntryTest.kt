@@ -2,7 +2,8 @@ package org.projectfluent.syntax.serializer
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.projectfluent.syntax.ast.TopLevel
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel
+
 import org.projectfluent.syntax.parser.FluentParser
 
 class SerializeEntryTest {

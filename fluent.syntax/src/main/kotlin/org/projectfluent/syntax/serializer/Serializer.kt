@@ -1,6 +1,12 @@
 package org.projectfluent.syntax.serializer
 
-import org.projectfluent.syntax.ast.* // ktlint-disable no-wildcard-imports
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Entry.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Entry.BaseComment.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.*
+import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.*
 
 private fun indentExceptFirstLine(content: CharSequence) =
     content.split("\n").joinToString("\n    ")
@@ -46,7 +52,6 @@ class FluentSerializer(private val withJunk: Boolean = false) {
                     is Entry -> serializeEntry(it)
                     is Whitespace -> it.content
                     is Junk -> it.content.takeIf { this.withJunk }
-                    else -> throw SerializeError("Unknown top-level entry type")
                 }
             }
             .joinToString("")
@@ -59,7 +64,6 @@ class FluentSerializer(private val withJunk: Boolean = false) {
             is Entry -> serializeEntry(entry)
             is Whitespace -> entry.content
             is Junk -> entry.content
-            else -> throw SerializeError("Unknown top-level type: $entry")
         }
 
     /**
@@ -83,7 +87,6 @@ class FluentSerializer(private val withJunk: Boolean = false) {
             is Comment -> serializeComment(entry, "#")
             is GroupComment -> serializeComment(entry, "##")
             is ResourceComment -> serializeComment(entry, "###")
-            else -> throw SerializeError("Unknown entry type: $entry")
         }
 
     private fun serializeComment(comment: BaseComment, prefix: CharSequence = "#") =
@@ -202,7 +205,6 @@ class FluentSerializer(private val withJunk: Boolean = false) {
                 expr.variants.forEach { builder.append(serializeVariant(it)) }
                 builder.append("\n")
             }
-            else -> throw SerializeError("Unknown expression type: $expr")
         }
     }
 
