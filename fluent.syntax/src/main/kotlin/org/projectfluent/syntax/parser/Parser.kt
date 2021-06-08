@@ -1,6 +1,5 @@
 package org.projectfluent.syntax.parser
 
-import org.projectfluent.syntax.ast.BaseNode
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.*
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.*
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.*
@@ -163,9 +162,7 @@ class FluentParser(var withSpans: Boolean = false) {
             throw ParseError("E0005", id.name)
         }
 
-        val msg = Entry.Message(id, value)
-        msg.attributes.addAll(attrs)
-        return msg
+        return Entry.Message(id, value, attrs.toList())
     }
 
     private fun getTerm(ps: FluentStream): Entry.Term {
@@ -698,10 +695,7 @@ class FluentParser(var withSpans: Boolean = false) {
         }
 
         ps.expectChar(')')
-        val args = CallArguments()
-        args.positional.addAll(positional)
-        args.named.addAll(named)
-        return args
+        return CallArguments(positional = positional, named = named)
     }
 
     private fun getString(ps: FluentStream): StringLiteral {

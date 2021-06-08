@@ -79,8 +79,8 @@ sealed class BaseNode {
         }
 
         data class CallArguments(
-            val positional: MutableList<TopLevel.Expression> = mutableListOf(),
-            val named: MutableList<NamedArgument> = mutableListOf()
+            val positional: List<TopLevel.Expression> ,
+            val named: List<NamedArgument>
         ) : SyntaxNode() {
             override fun equals(other: Any?): Boolean {
                 return if (other != null && other is CallArguments) {
@@ -93,7 +93,7 @@ sealed class BaseNode {
         data class Annotation(
             val code: String,
             val message: String,
-            val arguments: List<Any> = mutableListOf()
+            val arguments: List<Any>
         ) : SyntaxNode(), HasSpan {
             override var span: Span? = null
 
@@ -116,7 +116,7 @@ sealed class BaseNode {
                 data class Message(
                     val id: Identifier,
                     val value: Pattern?,
-                    val attributes: MutableList<Attribute> = mutableListOf(),
+                    val attributes: List<Attribute>,
                     var comment: BaseComment.Comment? = null
                 ) : Entry() {
                     override fun equals(other: Any?): Boolean {
