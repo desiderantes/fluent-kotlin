@@ -130,7 +130,7 @@ sealed class BaseNode {
                 data class Term(
                     val id: Identifier,
                     val value: Pattern,
-                    val attributes: MutableList<Attribute> = mutableListOf(),
+                    val attributes: List<Attribute>,
                     var comment: BaseComment.Comment? = null
                 ) : Entry() {
                     override fun equals(other: Any?): Boolean {
@@ -180,7 +180,7 @@ sealed class BaseNode {
 
                 data class FunctionReference(val id: Identifier, val arguments: CallArguments) : Expression()
 
-                data class SelectExpression(val selector: Expression, val variants: MutableList<Variant>) :
+                data class SelectExpression(val selector: Expression, val variants: List<Variant>) :
                     Expression() {
                     override fun equals(other: Any?): Boolean {
                         return if (other != null && other is SelectExpression) selector == other.selector && variants.deepEquals(
@@ -197,11 +197,8 @@ sealed class BaseNode {
 
             data class Junk(
                 val content: String,
-                val annotations: MutableList<Annotation> = mutableListOf()
+                val annotations: List<Annotation>
             ) : TopLevel() {
-                fun addAnnotation(annotation: Annotation) {
-                    this.annotations.add(annotation)
-                }
 
                 override fun equals(other: Any?): Boolean {
                     return if (other != null && other is Junk) content == other.content && annotations.deepEquals(other.annotations) else false

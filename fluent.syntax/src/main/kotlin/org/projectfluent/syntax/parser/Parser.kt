@@ -82,11 +82,10 @@ class FluentParser(var withSpans: Boolean = false) {
 
             // Create a Junk instance
             val slice = ps.string.substring(entryStartPos, nextEntryStart)
-            val junk = Junk(slice)
-            val annot = Annotation(err.code, err.message ?: "",err.args)
-            annot.addSpan(errorIndex, errorIndex)
-            junk.addAnnotation(annot)
-            return junk
+            return Junk(
+                slice,
+                listOf(Annotation(err.code, err.message ?: "", err.args).apply { addSpan(errorIndex, errorIndex) })
+            )
         }
     }
 
@@ -178,9 +177,7 @@ class FluentParser(var withSpans: Boolean = false) {
         }
 
         val attrs = this.getAttributes(ps)
-        val term = Entry.Term(id, value)
-        term.attributes.addAll(attrs)
-        return term
+        return Entry.Term(id, value, attrs.toList())
     }
 
     private fun getAttribute(ps: FluentStream): Attribute {
