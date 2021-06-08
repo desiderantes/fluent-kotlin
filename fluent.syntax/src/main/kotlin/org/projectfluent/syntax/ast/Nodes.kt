@@ -24,57 +24,10 @@ private fun List<Any>.deepEquals(other: List<Any>): Boolean {
 
 sealed class BaseNode {
 
-//    override fun equals(other: Any?) =
-//        if (other is BaseNode) {
-//            false
-//            this.equals(other, emptySet())
-//        } else {
-//            false
-//        }
-//
-//    fun equals(other: BaseNode, ignoredFields: Set<String> = setOf("span")): Boolean =
-//        if (this::class == other::class) {
-//            publicMemberProperties(this::class, ignoredFields).all {
-//                val thisValue = it.getter.call(this)
-//                val otherValue = it.getter.call(other)
-//                if (thisValue is Collection<*> && otherValue is Collection<*>) {
-//                    if (thisValue.size == otherValue.size) {
-//                        thisValue.zip(otherValue).all { (a, b) -> scalarsEqual(a, b, ignoredFields) }
-//                    } else {
-//                        false
-//                    }
-//                } else {
-//                    scalarsEqual(thisValue, otherValue, ignoredFields)
-//                }
-//            }
-//        } else {
-//            false
-//        }
-
-//    private companion object {
-//        private fun publicMemberProperties(clazz: KClass<*>, ignoredFields: Set<String>) =
-//            clazz.memberProperties
-//                .filter { it.visibility == KVisibility.PUBLIC }
-//                .filterNot { ignoredFields.contains(it.name) }
-//
-//        private fun scalarsEqual(left: Any?, right: Any?, ignoredFields: Set<String>) =
-//            if (left is BaseNode && right is BaseNode) {
-//                left.equals(right, ignoredFields)
-//            } else {
-//                left == right
-//            }
-//    }
-
-
     /**
      * Base class for AST nodes which can have Spans.
      */
     sealed class SyntaxNode : BaseNode() {
-//        var span: Span? = null
-//
-//        fun addSpan(start: Int, end: Int) {
-//            this.span = Span(start, end)
-//        }
 
         /**
          * A Fluent file representation
