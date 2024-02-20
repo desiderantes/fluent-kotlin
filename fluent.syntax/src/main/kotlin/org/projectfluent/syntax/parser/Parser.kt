@@ -76,7 +76,7 @@ class FluentParser(var withSpans: Boolean = false) {
             ps.skipToNextEntryStart(entryStartPos)
             val nextEntryStart = ps.index
             if (nextEntryStart < errorIndex) {
-                // The position of the error must be inside of the Junk's span.
+                // The position of the error must be inside the Junk's span.
                 errorIndex = nextEntryStart
             }
 

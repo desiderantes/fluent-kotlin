@@ -150,7 +150,7 @@ internal class FluentStream(string: String) : ParserStream(string) {
 
     private fun isCharIdStart(ch: Char?): Boolean {
         ch?.let {
-            val cc = ch.toInt()
+            val cc = ch.code
             return (cc in 97..122) || // a-z
                 (cc in 65..90) // A-Z
         }
@@ -165,7 +165,7 @@ internal class FluentStream(string: String) : ParserStream(string) {
         val ch = if (this.currentChar() == '-') this.peek() else this.currentChar()
 
         ch?.let {
-            val cc = ch.toInt()
+            val cc = ch.code
             val isDigit = cc in 48..57 // 0-9
             this.resetPeek()
             return isDigit
@@ -294,22 +294,22 @@ internal class FluentStream(string: String) : ParserStream(string) {
     }
 
     fun takeIDChar(): Char? {
-        val closure = fun (ch: Char): Boolean {
-            val cc = ch.toInt()
+        val closure = fun(ch: Char): Boolean {
+            val cc = ch.code
             return (
-                (cc in 97..122) || // a-z
-                    (cc in 65..90) || // A-Z
-                    (cc in 48..57) || // 0-9
-                    cc == 95 || cc == 45
-                ) // _-
+                    (cc in 97..122) || // a-z
+                            (cc in 65..90) || // A-Z
+                            (cc in 48..57) || // 0-9
+                            cc == 95 || cc == 45
+                    ) // _-
         }
 
         return this.takeChar(closure)
     }
 
     fun takeDigit(): Char? {
-        val closure = fun (ch: Char): Boolean {
-            val cc = ch.toInt()
+        val closure = fun(ch: Char): Boolean {
+            val cc = ch.code
             return (cc in 48..57) // 0-9
         }
 
@@ -317,11 +317,11 @@ internal class FluentStream(string: String) : ParserStream(string) {
     }
 
     fun takeHexDigit(): Char? {
-        val closure = fun (ch: Char): Boolean {
-            val cc = ch.toInt()
+        val closure = fun(ch: Char): Boolean {
+            val cc = ch.code
             return (cc in 48..57) || // 0-9
-                (cc in 65..70) || // A-F
-                (cc in 97..102) // a-f
+                    (cc in 65..70) || // A-F
+                    (cc in 97..102) // a-f
         }
 
         return this.takeChar(closure)

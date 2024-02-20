@@ -1,5 +1,6 @@
 package org.projectfluent.syntax.processor
 
+import org.projectfluent.syntax.ast.BaseNode
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.Placeable
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.PatternElement.TextElement
 import org.projectfluent.syntax.ast.BaseNode.SyntaxNode.TopLevel.Expression.Literal.StringLiteral
@@ -72,6 +73,8 @@ class Processor {
                         }
                     }
                 }
+
+                is BaseNode.SyntaxNode.PatternElement.Indent -> {}
             }
         }
         lastText?.let { yield(it) }
@@ -138,6 +141,8 @@ class Processor {
                         }
                     }
                 }
+
+                is BaseNode.SyntaxNode.PatternElement.Indent -> {}
             }
         }
     }

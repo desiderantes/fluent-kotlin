@@ -3,19 +3,19 @@ version = "0.1"
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    kotlin("jvm") version "1.5.10"
+    alias(libs.plugins.kotlin)
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 
     // Add dokka to be able to generate documentation.
-    id("org.jetbrains.dokka") version "1.4.32"
+    alias(libs.plugins.dokka)
 }
 
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -31,10 +31,10 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     // Use the Kotlin JUnit integration.
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
+    testImplementation(libs.junit)
 
-    // Use Klaxon for tests. FIXME jcenter!
-    testImplementation("com.beust:klaxon:5.0.1")
+    // Use Klaxon for tests.
+    testImplementation(libs.klaxon)
 }
 
 tasks.test {

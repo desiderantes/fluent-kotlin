@@ -222,18 +222,8 @@ class FluentSerializer(private val withJunk: Boolean = false) {
     private fun serializeCallArguments(expr: CallArguments): CharSequence {
         val positional = expr.positional.joinToString(", ", transform = ::serializeExpression)
         val named = expr.named.joinToString(", ", transform = ::serializeNamedArgument)
-        val hasPositional = expr.positional.size > 0
-        val hasNamed = expr.named.size > 0
 
-        return if (hasPositional && hasNamed) {
-            "($positional, $named)"
-        } else if (hasPositional) {
-            "($positional)"
-        } else if (hasNamed) {
-            "($named)"
-        } else {
-            "()"
-        }
+        return "(${sequenceOf(positional, named).filter { it.isNotEmpty() }.joinToString(", ")})"
     }
 
     private fun serializeNamedArgument(arg: NamedArgument) = "${arg.name.name}: ${serializeExpression(arg.value)}"

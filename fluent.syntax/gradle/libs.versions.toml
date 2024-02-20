@@ -1,0 +1,14 @@
+[versions]
+junit = "5.10.2"
+kotlin = "1.9.10"
+klaxon = "5.5"
+
+[libraries]
+
+klaxon = { group = "com.beust", name = "klaxon", version.ref = "klaxon" }
+junit = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
+kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+
+[plugins]
+dokka = {id = "org.jetbrains.dokka", version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
