@@ -9,7 +9,7 @@ fluent-kotlin consists of these packages:
 ``fluent.syntax``
 -----------------
 
-The `syntax package <fluent.syntax>`_ includes the parser, serializer, and traversal
+The `syntax package <syntax>`_ includes the parser, serializer, and traversal
 utilities like Visitor. You’re looking for this package
 if you work on tooling for Fluent in Kotlin or Java.
 
@@ -20,8 +20,8 @@ The Kotlin sources in this project use `ktlint <https://ktlint.github.io/>`__.
 To run tests and resolve linting errors, run the following commands before submitting
 patches.
 
-- ``./fluent.syntax/gradlew test -p './fluent.syntax'``
-- ``./fluent.syntax/gradlew ktlintFormat -p './fluent.syntax'``
+- ``./syntax/gradlew test -p './syntax'``
+- ``./syntax/gradlew ktlintFormat -p './syntax'``
 
 Discuss
 -------
